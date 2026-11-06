@@ -116,7 +116,12 @@ public class LinearTest extends LinearOpMode {
         // Start autonomous
         stateTimer.reset();
         try {
-            driveTrain.driveToRelative(0, 0, 90, 0.25, isRed, imu, log, kp, ki, kd);
+            driveTrain.driveFieldCentric(-12, -12, 45, 0.25, imu);
+            driveTrain.driveFieldCentric(12, -12, -45, 0.25, imu);
+            driveTrain.driveFieldCentric(12, 12, 45, 0.25, imu);
+            driveTrain.driveFieldCentric(-12, 12, -45, 0.25, imu);
+            driveTrain.driveFieldCentric(0, 0, 0, 0.25, imu);
+
             dashboardTelemetry.addData("Done!", "");
             dashboardTelemetry.update();
             driveTrain.stopMotors();

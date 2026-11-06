@@ -17,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Implementations.AndroidLog;
 import org.firstinspires.ftc.teamcode.Interfaces.LogI;
 import org.firstinspires.ftc.teamcode.Interfaces.ImuPositionI;
+import org.firstinspires.ftc.teamcode.Math.Util;
 import org.firstinspires.ftc.teamcode.Math.Vector2;
 import org.firstinspires.ftc.teamcode.Pathing.PID;
 
@@ -295,9 +296,7 @@ public class DriveTrain {
                                 double endDegrees,
                                 double power,
                                 boolean isRed,
-                                ImuPositionI imu,
-                                LogI log, double kp, double ki, double kd) throws Exception {
-        imu.reset();
+                                ImuPositionI imu, double kp, double ki, double kd) throws Exception {
         imu.update();
         Pose2D startPose = imu.getPose();
 
@@ -369,6 +368,7 @@ public class DriveTrain {
             if (!positionOnTarget) {
                 // PID control based on remaining distance
                 double driveMagnitude = drivePID.calculate(targetDistance, targetDistance - remainingDistance);
+                driveMagnitude = Util.clamp(driveMagnitude, -1, 1);
 
                 // Apply minimum power
                 if (Math.abs(driveMagnitude) < minDrivePower) {
@@ -387,7 +387,7 @@ public class DriveTrain {
             double rotatePower = 0.0;
             if (!headingOnTarget) {
                 rotatePower = rotatePID.calculate(endDegrees, curHeading);
-
+                rotatePower = Util.clamp(rotatePower, -1, 1);
                 // Apply minimum rotation power
                 if (Math.abs(rotatePower) < minRotatePower && Math.abs(headingError) > angleTolerance) {
                     rotatePower = minRotatePower * Math.signum(rotatePower);
@@ -430,6 +430,10 @@ public class DriveTrain {
                     String.format("robotY: %.2f | robotX: %.2f | rotatePower %.2f | demon: %.2f",
                     robotY, robotX, rotatePower, denom));
 
+            dashboardTelemetry.addData("Location",
+                    String.format("x: %.2f | y: %.2f",
+                            curPose.getX(DistanceUnit.INCH), curPose.getY(DistanceUnit.INCH)));
+
 
             dashboardTelemetry.update();
 
@@ -445,6 +449,19 @@ public class DriveTrain {
     public static double clamp(double value, double min, double max) {
         if (min > max) throw new IllegalArgumentException("min must be <= max");
         return Math.max(min, Math.min(max, value));
+    }
+    public void driveFieldCentric(double x, double y, double endDegrees, double power, PinpointImpl imu) {
+        Pose2D pos = imu.getPose();
+        x = x - pos.getX(DistanceUnit.INCH);
+        y = y - pos.getY(DistanceUnit.INCH);
+
+
+        try {
+            driveToRelative(x, y, endDegrees, power, false, imu, 1, 0, 0);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     /**

@@ -20,8 +20,7 @@ public class PinpointImpl implements ImuPositionI {
                 GoBildaPinpointDriver.EncoderDirection.FORWARD,
                 GoBildaPinpointDriver.EncoderDirection.REVERSED);
         pp.setEncoderResolution(Constants.encoderResolution);
-        pp.setOffsets(-200, 100);
-        // 71.5, 165.1
+        pp.setOffsets(-165.1, 71.5);
     }
 
     @Override
