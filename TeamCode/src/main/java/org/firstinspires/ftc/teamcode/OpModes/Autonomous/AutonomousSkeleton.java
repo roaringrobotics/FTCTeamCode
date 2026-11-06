@@ -47,7 +47,7 @@ public class AutonomousSkeleton extends LinearOpMode {
     private final ElapsedTime stateTimer = new ElapsedTime();
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         /*
         initialize hardware
             example:

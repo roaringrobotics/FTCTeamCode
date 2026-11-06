@@ -43,7 +43,7 @@ public class HeadingTest extends LinearOpMode {
     private final ElapsedTime stateTimer = new ElapsedTime();
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         driveTrain = new DriveTrain(hardwareMap);
         imu = new PinpointImpl(hardwareMap);
         intake = new Intake(hardwareMap);

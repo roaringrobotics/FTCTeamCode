@@ -42,14 +42,14 @@ public class LinearTest extends LinearOpMode {
     private final ElapsedTime stateTimer = new ElapsedTime();
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         driveTrain = new DriveTrain(hardwareMap);
         imu = new PinpointImpl(hardwareMap);
 
         PowerRampController rampDrive = new PowerRampController(
                 .1,
                 new SystemTimeSource());
-        double kp = 0.02;
+        double kp = 1.0;
         double ki = 0;
         double kd = 0;
 

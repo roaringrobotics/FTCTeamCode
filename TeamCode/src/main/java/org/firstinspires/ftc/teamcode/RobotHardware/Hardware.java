@@ -39,7 +39,7 @@ public class Hardware {
     }
 
 
-    public void resetImu() {
+    public void resetImu() throws InterruptedException {
         imuPos.reset();
     }
 

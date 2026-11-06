@@ -313,16 +313,20 @@ public class DriveTrain {
                 AngleUnit.DEGREES,
                 endDegrees);
 
+//        double linearPercentage;
+//        double roationPercentage;
         double targetDistance = Math.sqrt(x * x + y * y);
 
         // PID controllers
-        PID drivePID = new PID(0.53, ki, 0);     // For position control
-        PID rotatePID = new PID(kp, ki, kd); // For rotation control
+        PID drivePID = new PID(kp, ki, 0);     // For position control
+        PID rotatePID = new PID(0.9, ki, kd); // For rotation control
 
         final double distanceTolerance = 0.5;  // inches
         final double angleTolerance = 2.0;     // degrees
         final double minDrivePower = 0.12;
         final double minRotatePower = 0.15;
+        final double maxDrivePower = 1.0;
+        final double maxRotatePower = 1.0;
         final int settleCountsRequired = 5;
 
         int settleCount = 0;
@@ -388,6 +392,9 @@ public class DriveTrain {
                 if (Math.abs(rotatePower) < minRotatePower && Math.abs(headingError) > angleTolerance) {
                     rotatePower = minRotatePower * Math.signum(rotatePower);
                 }
+                if (Math.abs(rotatePower) > maxRotatePower) {
+                    rotatePower = maxRotatePower * Math.signum(rotatePower);
+                }
             }
 
             double botHeadingRad = Math.toRadians(curHeading);
@@ -400,8 +407,8 @@ public class DriveTrain {
             double denom = Math.max(vectorSum, 1.0);
 
             // Testing values for rotation
-            robotY = 0.0;
-            robotX = 0.0;
+//            robotY = 0.0;
+//            robotX = 0.0;
 
             double flPower = (robotY + robotX - rotatePower) / denom;
             double blPower = (robotY - robotX - rotatePower) / denom;
@@ -416,11 +423,8 @@ public class DriveTrain {
             setBackRightPower(brPower * power);
 
             dashboardTelemetry.addData("DriveLinear",
-                    String.format(
-                            "endDegrees: %.3f | curDegrees: %.3f | error %.3f | hot %b | pot %b | sc %d",
-                            endDegrees, curHeading, headingError,
-                            headingOnTarget,
-                            positionOnTarget, settleCount));
+                    String.format("endDegrees: %.3f | curDegrees: %.3f | error %.3f | hot %b | pot %b | sc %d",
+                    endDegrees, curHeading, headingError, headingOnTarget, positionOnTarget, settleCount));
 
             dashboardTelemetry.addData("Power Levels",
                     String.format("robotY: %.2f | robotX: %.2f | rotatePower %.2f | demon: %.2f",
@@ -630,6 +634,7 @@ public class DriveTrain {
             log.d("DriveStrafe", "Complete. Traveled: " + distanceTraveled);
         }
     }
+
     public double powerScaler(boolean halfSpeed, boolean quarterSpeed) {
         double powerScale;
         if (halfSpeed) {

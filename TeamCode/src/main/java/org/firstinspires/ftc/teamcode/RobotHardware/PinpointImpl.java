@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.RobotHardware;
 
+import static java.lang.Thread.sleep;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -18,12 +20,13 @@ public class PinpointImpl implements ImuPositionI {
                 GoBildaPinpointDriver.EncoderDirection.FORWARD,
                 GoBildaPinpointDriver.EncoderDirection.REVERSED);
         pp.setEncoderResolution(Constants.encoderResolution);
-        pp.setOffsets(140, 177);
+        pp.setOffsets(0, 0);
     }
 
     @Override
-    public void reset() {
+    public void reset() throws InterruptedException {
         pp.resetPosAndIMU();
+        sleep(500);
     }
 
     @Override

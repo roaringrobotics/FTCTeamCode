@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 // Implemented by ImuImpl and PinpointImpl.
 public interface ImuPositionI {
     // Reset the IMU heading and position if possible.
-    void reset();
+    void reset() throws InterruptedException;
 
     void resetHeading();
 

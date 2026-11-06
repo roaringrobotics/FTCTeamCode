@@ -53,7 +53,7 @@ public class Decode extends LinearOpMode {
 
 
 
-    runOpMode() {
+    runOpMode() throws InterruptedException {
         driveTrain = new DriveTrain(hardwareMap);
         imu = new PinpointImpl(hardwareMap);
         intake = new Intake(hardwareMap);
