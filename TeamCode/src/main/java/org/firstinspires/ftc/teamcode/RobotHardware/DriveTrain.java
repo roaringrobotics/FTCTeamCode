@@ -111,14 +111,36 @@ public class DriveTrain {
 
         }
     }
+    public void driveRobotCentric(double robotX, double robotY, double rightStickX, // rightStickX rotates the robot
+                                  double powerScale){
+
+        double vectorSum = Math.abs(robotX) + Math.abs(robotY) + Math.abs(rightStickX);
+        double denom = Math.max(vectorSum, 1.0);
+
+        double frontLeftPower = (robotY - robotX + rightStickX); // denom;
+        double backLeftPower = (robotY + robotX + rightStickX); // denom;
+        double frontRightPower = (robotY - robotX - rightStickX); // denom;
+        double backRightPower = (robotY + robotX - rightStickX); // denom;
+
+        dashboardTelemetry.addData("Front Left Power", frontLeftPower);
+        dashboardTelemetry.addData("Back Left Power", backLeftPower);
+        dashboardTelemetry.addData("Front Right Power", frontRightPower);
+        dashboardTelemetry.addData("Back Right Power", backRightPower);
+        dashboardTelemetry.update();
+
+        setFrontLeftPower(frontLeftPower * powerScale);
+        setBackLeftPower(backLeftPower * powerScale);
+        setBackRightPower(frontRightPower * powerScale);
+        setFrontRightPower(backRightPower * powerScale);
+    }
     public void driveFieldCentric(double fieldX, double fieldY, double rightStickX,
-                                   double powerScale, Hardware hw) {
+                                   double powerScale, PinpointImpl imu) {
         // Takes joystick input and sets motor power levels to drive
         // robot field centric.
         // fieldX is the field centric away/towards driver stick input (forward/back)
         // fieldY is the field centric horizontal movement.
-        hw.imuPos.update();
-        double botHeading = hw.imuPos.getHeading(AngleUnit.RADIANS);
+        imu.update();
+        double botHeading = imu.getHeading(AngleUnit.RADIANS);
 
         getFieldCentricPowerLevels(
                 fieldX, fieldY,
@@ -296,7 +318,7 @@ public class DriveTrain {
                                 double endDegrees,
                                 double power,
                                 boolean isRed,
-                                ImuPositionI imu, double kp, double ki, double kd) throws Exception {
+                                PinpointImpl imu, double kpl, double kil, double kdl, double kpr, double kir, double kdr) throws Exception {
         imu.update();
         Pose2D startPose = imu.getPose();
 
@@ -304,6 +326,10 @@ public class DriveTrain {
             x = -x;
             endDegrees = -endDegrees;
         }
+        if (endDegrees > 180) {
+            endDegrees -= 360;
+        }
+
         // Calculate target pose in field coordinates
         Pose2D targetPose = new Pose2D(
                 DistanceUnit.INCH,
@@ -317,8 +343,8 @@ public class DriveTrain {
         double targetDistance = Math.sqrt(x * x + y * y);
 
         // PID controllers
-        PID drivePID = new PID(kp, ki, 0);     // For position control
-        PID rotatePID = new PID(0.9, ki, kd); // For rotation control
+        PID drivePID = new PID(kpl, kil, kdl);     // For position control
+        PID rotatePID = new PID(kpr, kir, kdr); // For rotation control
 
         final double distanceTolerance = 0.5;  // inches
         final double angleTolerance = 2.0;     // degrees
@@ -347,7 +373,7 @@ public class DriveTrain {
 
             // Calculate heading error
             double headingError = endDegrees - curHeading;
-            while (headingError > 180) headingError -= 360;
+            while (headingError >= 180) headingError -= 360;
             while (headingError <= -180) headingError += 360;
 
             // Check if we're on target
@@ -386,20 +412,26 @@ public class DriveTrain {
             // Calculate rotation power
             double rotatePower = 0.0;
             if (!headingOnTarget) {
+                if (curHeading < 0) {
+                    curHeading += 360;
+                }
                 rotatePower = rotatePID.calculate(endDegrees, curHeading);
                 rotatePower = Util.clamp(rotatePower, -1, 1);
                 // Apply minimum rotation power
-                if (Math.abs(rotatePower) < minRotatePower && Math.abs(headingError) > angleTolerance) {
-                    rotatePower = minRotatePower * Math.signum(rotatePower);
-                }
-                if (Math.abs(rotatePower) > maxRotatePower) {
-                    rotatePower = maxRotatePower * Math.signum(rotatePower);
-                }
+//                if (Math.abs(rotatePower) < minRotatePower && Math.abs(headingError) > angleTolerance) {
+//                    rotatePower = minRotatePower * Math.signum(rotatePower);
+//                }
+//                if (Math.abs(rotatePower) > maxRotatePower) {
+//                    rotatePower = maxRotatePower * Math.signum(rotatePower);
+//                }
             }
 
             double botHeadingRad = Math.toRadians(curHeading);
             double robotX = driveY * Math.cos(-botHeadingRad) - driveX * Math.sin(-botHeadingRad);
             double robotY = driveY * Math.sin(-botHeadingRad) + driveX * Math.cos(-botHeadingRad);
+
+            robotX = Util.clamp(robotX, -1.0, 1.0);
+            robotY = Util.clamp(robotY, -1.0, 1.0);
 
 
             // Calculate mecanum wheel powers
@@ -441,23 +473,20 @@ public class DriveTrain {
         }
 
         stopMotors();
-        if (log != null) {
-            log.d("DriveLinear", "Complete - reached target position and heading");
-        }
     }
 
     public static double clamp(double value, double min, double max) {
         if (min > max) throw new IllegalArgumentException("min must be <= max");
         return Math.max(min, Math.min(max, value));
     }
-    public void driveFieldCentric(double x, double y, double endDegrees, double power, PinpointImpl imu) {
+    public void driveToFieldCentric(double x, double y, double endDegrees, double power, PinpointImpl imu) {
         Pose2D pos = imu.getPose();
         x = x - pos.getX(DistanceUnit.INCH);
         y = y - pos.getY(DistanceUnit.INCH);
 
 
         try {
-            driveToRelative(x, y, endDegrees, power, false, imu, 1, 0, 0);
+            driveToRelative(x, y, endDegrees, power, false, imu, 1, 0, 0, 1, 0, 0);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -652,38 +681,17 @@ public class DriveTrain {
         }
     }
 
-    public double powerScaler(boolean halfSpeed, boolean quarterSpeed) {
+    public double powerScaler(boolean fullSpeed, boolean quarterSpeed) {
         double powerScale;
-        if (halfSpeed) {
-            powerScale = 0.5;
+        if (fullSpeed) {
+            powerScale = 1.0;
         } else if (quarterSpeed) {
             powerScale = 0.25;
         } else {
-            powerScale = 1.0;
+            powerScale = 0.5;
         }
         return powerScale;
     }
-    public void driveRobotCentric(double robotX, double robotY, double rightStickX, // rightStickX rotates the robot
-                                  double powerScale){
 
-        double vectorSum = Math.abs(robotX) + Math.abs(robotY) + Math.abs(rightStickX);
-        double denom = Math.max(vectorSum, 1.0);
-
-        double frontLeftPower = (robotY - robotX + rightStickX); // denom;
-        double backLeftPower = (robotY + robotX + rightStickX); // denom;
-        double frontRightPower = (robotY - robotX - rightStickX); // denom;
-        double backRightPower = (robotY + robotX - rightStickX); // denom;
-
-        dashboardTelemetry.addData("Front Left Power", frontLeftPower);
-        dashboardTelemetry.addData("Back Left Power", backLeftPower);
-        dashboardTelemetry.addData("Front Right Power", frontRightPower);
-        dashboardTelemetry.addData("Back Right Power", backRightPower);
-        dashboardTelemetry.update();
-
-        setFrontLeftPower(frontLeftPower * powerScale);
-        setBackLeftPower(backLeftPower * powerScale);
-        setBackRightPower(frontRightPower * powerScale);
-        setFrontRightPower(backRightPower * powerScale);
-    }
 
 }

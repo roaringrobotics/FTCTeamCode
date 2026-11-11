@@ -48,7 +48,7 @@ public class TeleOpDecode extends LinearOpMode {
             double powerScale = driveTrain.powerScaler(gamepad1.right_bumper, gamepad1.left_bumper);
             int targetVelocity;
 
-            driveTrain.driveFieldCentric(fieldX, fieldY, rotate, powerScale, hw);
+            //driveTrain.driveFieldCentric(fieldX, fieldY, rotate, powerScale, hw);
 
             timesource.update();
 

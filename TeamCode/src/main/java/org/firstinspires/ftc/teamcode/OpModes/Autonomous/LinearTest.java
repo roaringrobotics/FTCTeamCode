@@ -12,9 +12,7 @@ import org.firstinspires.ftc.teamcode.Implementations.AndroidLog;
 import org.firstinspires.ftc.teamcode.Implementations.SystemTimeSource;
 import org.firstinspires.ftc.teamcode.Pathing.PowerRampController;
 import org.firstinspires.ftc.teamcode.RobotHardware.DriveTrain;
-import org.firstinspires.ftc.teamcode.RobotHardware.Intake;
 import org.firstinspires.ftc.teamcode.RobotHardware.PinpointImpl;
-import org.firstinspires.ftc.teamcode.RobotHardware.Shooter;
 
 
 /*
@@ -60,6 +58,7 @@ public class LinearTest extends LinearOpMode {
         double h = 0;
         double targetDistance = 0;
         double mirrorField = 1;
+        double power = 0.5;
         String team;
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -116,11 +115,11 @@ public class LinearTest extends LinearOpMode {
         // Start autonomous
         stateTimer.reset();
         try {
-            driveTrain.driveFieldCentric(-12, -12, 45, 0.25, imu);
-            driveTrain.driveFieldCentric(12, -12, -45, 0.25, imu);
-            driveTrain.driveFieldCentric(12, 12, 45, 0.25, imu);
-            driveTrain.driveFieldCentric(-12, 12, -45, 0.25, imu);
-            driveTrain.driveFieldCentric(0, 0, 0, 0.25, imu);
+            driveTrain.driveToFieldCentric(-12, -12, 45, power, imu);
+            driveTrain.driveToFieldCentric(12, -12, -45, power, imu);
+            driveTrain.driveToFieldCentric(12, 12, 45, power, imu);
+            driveTrain.driveToFieldCentric(-12, 12, -45, power, imu);
+            driveTrain.driveToFieldCentric(0, 0, 0, power, imu);
 
             dashboardTelemetry.addData("Done!", "");
             dashboardTelemetry.update();

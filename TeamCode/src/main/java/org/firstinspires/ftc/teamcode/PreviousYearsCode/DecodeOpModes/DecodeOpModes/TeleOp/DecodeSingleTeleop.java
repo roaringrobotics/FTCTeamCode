@@ -49,7 +49,7 @@ public class DecodeSingleTeleop extends LinearOpMode {
 //            log.d("Heading: ", String.valueOf(hw.imuPos.getHeading(AngleUnit.DEGREES)));
 
 
-            driveTrain.driveFieldCentric(fieldX, fieldY, rotate, powerScale, hw);
+            // driveTrain.driveFieldCentric(fieldX, fieldY, rotate, powerScale, hw);
 
             timesource.update();
 

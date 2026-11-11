@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.RobotHardware.DriveTrain;
 import org.firstinspires.ftc.teamcode.RobotHardware.Hardware;
 
 import org.firstinspires.ftc.teamcode.RobotHardware.Intake;
+import org.firstinspires.ftc.teamcode.RobotHardware.PinpointImpl;
 import org.firstinspires.ftc.teamcode.RobotHardware.Shooter;
 
     @TeleOp
@@ -25,12 +26,15 @@ import org.firstinspires.ftc.teamcode.RobotHardware.Shooter;
         private DriveTrain driveTrain;
         FtcDashboard dashboard = FtcDashboard.getInstance();
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
-        private Hardware imu;
+        private PinpointImpl imu;
         public void runOpMode() throws InterruptedException {
             driveTrain = new DriveTrain(hardwareMap);
-            imu = new Hardware(hardwareMap);
-            imu.resetImu();
+            imu = new PinpointImpl(hardwareMap);
+            imu.reset();
             waitForStart();
+            driveTrain.driveToFieldCentric(0, 12, 90, 0.5, imu);
+            imu.reset();
+            sleep(300);
             while (opModeIsActive()) {
                 double fieldX = gamepad1.left_stick_x;
                 double fieldY = gamepad1.left_stick_y;
@@ -40,7 +44,7 @@ import org.firstinspires.ftc.teamcode.RobotHardware.Shooter;
                 driveTrain.driveFieldCentric(fieldX, fieldY, rotate, powerScale, imu);
 
                 if (gamepad1.options) {
-                    imu.resetImu();
+                    imu.reset();
                 }
             }
         }
