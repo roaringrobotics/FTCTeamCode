@@ -346,8 +346,8 @@ public class DriveTrain {
         PID drivePID = new PID(kpl, kil, kdl);     // For position control
         PID rotatePID = new PID(kpr, kir, kdr); // For rotation control
 
-        final double distanceTolerance = 0.5;  // inches
-        final double angleTolerance = 2.0;     // degrees
+        final double distanceTolerance = 0.25;  // inches
+        final double angleTolerance = 1.0;     // degrees
         final double minDrivePower = 0.12;
         final double minRotatePower = 0.15;
         final double maxDrivePower = 1.0;
@@ -412,9 +412,11 @@ public class DriveTrain {
             // Calculate rotation power
             double rotatePower = 0.0;
             if (!headingOnTarget) {
-                if (curHeading < 0) {
-                    curHeading += 360;
-                }
+//                if (curHeading < 0) {
+//                    curHeading += 360;
+//                }
+//                if (curHeading > 0) curHeading -= 360;
+//                if (curHeading <= 0) curHeading += 360;
                 rotatePower = rotatePID.calculate(endDegrees, curHeading);
                 rotatePower = Util.clamp(rotatePower, -1, 1);
                 // Apply minimum rotation power

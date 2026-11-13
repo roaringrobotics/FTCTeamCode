@@ -24,9 +24,7 @@ import org.firstinspires.ftc.teamcode.RobotHardware.Shooter;
 public class PIDControllerTesting extends LinearOpMode {
 
     private DriveTrain driveTrain;
-    private Shooter shooter;
     private PinpointImpl imu;
-    private Intake intake;
     private final AndroidLog log = new AndroidLog();
 
 
@@ -41,16 +39,14 @@ public class PIDControllerTesting extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         driveTrain = new DriveTrain(hardwareMap);
         imu = new PinpointImpl(hardwareMap);
-        intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap, intake, log);
 
         PowerRampController rampDrive = new PowerRampController(
                 .1,
                 new SystemTimeSource());
         // define PID controller starter values for PID testing
-        double kp = 0.02;
-        double ki = 0;
-        double kd = 0;
+        double kpl = 0.3;
+        double kil = 0;
+        double kdl = 0;
 
         boolean isRed = false;
 
@@ -91,22 +87,22 @@ public class PIDControllerTesting extends LinearOpMode {
 
 
             if (gamepad2.a && gamepad2.dpadUpWasReleased()) {
-                kd += change;
+                kdl += change;
             } else if (gamepad2.a && gamepad2.dpadDownWasPressed()) {
-                kd -= change;
+                kdl -= change;
             } else if (gamepad2.b && gamepad2.dpadUpWasReleased()) {
-                ki += change;
+                kil += change;
             } else if (gamepad2.b && gamepad2.dpadDownWasPressed()) {
-                ki -= change;
+                kil -= change;
             } else if (gamepad2.y && gamepad2.dpadUpWasReleased()) {
-                kp += change;
+                kpl += change;
             } else if (gamepad2.y && gamepad2.dpadDownWasPressed()) {
-                kp -= change;
+                kpl -= change;
             }
 
 
 
-            telemetry.addData("PID Values", "kp: %.5f ki: %.5f kd: %.5f", kp, ki, kd);
+            telemetry.addData("PID Values", "kp: %.5f ki: %.5f kd: %.5f", kpl, kil, kdl);
             telemetry.addData("PID Change", change);
             telemetry.addData("Side", team);
             idle();
@@ -120,7 +116,7 @@ public class PIDControllerTesting extends LinearOpMode {
         stateTimer.reset();
         try {
             // write code here for autonomous
-
+            driveTrain.driveToRelative(12, 12, 0, 1.0, isRed, imu, kpl, kil, kdl, 1, 0, 0);
 
 
             // write code here for autonomous

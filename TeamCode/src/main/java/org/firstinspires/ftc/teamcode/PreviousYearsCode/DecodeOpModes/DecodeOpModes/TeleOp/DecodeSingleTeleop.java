@@ -12,12 +12,13 @@ import org.firstinspires.ftc.teamcode.RobotHardware.DriveTrain;
 import org.firstinspires.ftc.teamcode.RobotHardware.Hardware;
 
 import org.firstinspires.ftc.teamcode.RobotHardware.Intake;
+import org.firstinspires.ftc.teamcode.RobotHardware.PinpointImpl;
 import org.firstinspires.ftc.teamcode.RobotHardware.Shooter;
-
+@TeleOp(group = "Decode")
 public class DecodeSingleTeleop extends LinearOpMode {
     private DriveTrain driveTrain;
     private Shooter shooter;
-    private Hardware hw;
+    private PinpointImpl imu;
     private Intake intake;
     private SystemTimeSource timesource = new SystemTimeSource();
     private final AndroidLog log = new AndroidLog();
@@ -29,7 +30,7 @@ public class DecodeSingleTeleop extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
         driveTrain = new DriveTrain(hardwareMap);
-        hw = new Hardware(hardwareMap);
+        imu = new PinpointImpl(hardwareMap);
         intake = new Intake(hardwareMap);
         shooter = new Shooter(hardwareMap, intake, log);
         //  intake = new Intake(hardwareMap);
@@ -37,19 +38,19 @@ public class DecodeSingleTeleop extends LinearOpMode {
         float deadZone = 0.5F;
         while (opModeIsActive()) {
 
-            double fieldX = -gamepad1.left_stick_y;
-            double fieldY = -gamepad1.left_stick_x; // the negative is a hotfix
+            double fieldY = gamepad1.left_stick_y;
+            double fieldX = gamepad1.left_stick_x; // the negative is a hotfix
             double rotate = gamepad1.right_stick_x;
             dashboardTelemetry.addData("fieldX", fieldX);
             dashboardTelemetry.addData("fieldY", fieldY);
             dashboardTelemetry.addData("rotate", rotate);
             dashboardTelemetry.update();
             double powerScale = driveTrain.powerScaler(gamepad1.right_bumper, gamepad1.left_bumper);
-            hw.imuPos.update();
+            imu.update();
 //            log.d("Heading: ", String.valueOf(hw.imuPos.getHeading(AngleUnit.DEGREES)));
 
 
-            // driveTrain.driveFieldCentric(fieldX, fieldY, rotate, powerScale, hw);
+            driveTrain.driveFieldCentric(fieldX, fieldY, rotate, powerScale, imu);
 
             timesource.update();
 
@@ -77,7 +78,7 @@ public class DecodeSingleTeleop extends LinearOpMode {
 
             }
             if (gamepad1.options) {
-                hw.resetImu();
+                imu.reset();
             }
 
         }
