@@ -44,9 +44,13 @@ public class PIDControllerTesting extends LinearOpMode {
                 .1,
                 new SystemTimeSource());
         // define PID controller starter values for PID testing
-        double kpl = 0.3;
+        double kpl = 0.08;
         double kil = 0;
-        double kdl = 0;
+        double kdl = 2.5;
+        // PID controller values, for rotation
+        double kpr = 1;
+        double kir = 0;
+        double kdr = 0;
 
         boolean isRed = false;
 
@@ -85,7 +89,7 @@ public class PIDControllerTesting extends LinearOpMode {
                 change *= 10;
             }
 
-
+            // linear PID value changing during initialization
             if (gamepad2.a && gamepad2.dpadUpWasReleased()) {
                 kdl += change;
             } else if (gamepad2.a && gamepad2.dpadDownWasPressed()) {
@@ -99,10 +103,30 @@ public class PIDControllerTesting extends LinearOpMode {
             } else if (gamepad2.y && gamepad2.dpadDownWasPressed()) {
                 kpl -= change;
             }
+            // roatation PID value changing during initialization
+            if (gamepad2.a && gamepad2.dpadRightWasReleased()) {
+                kdr += change;
+            } else if (gamepad2.a && gamepad2.dpadLeftWasPressed()) {
+                kdr -= change;
+            } else if (gamepad2.b && gamepad2.dpadRightWasReleased()) {
+                kir += change;
+            } else if (gamepad2.b && gamepad2.dpadLeftWasPressed()) {
+                kir -= change;
+            } else if (gamepad2.y && gamepad2.dpadRightWasReleased()) {
+                kpr += change;
+            } else if (gamepad2.y && gamepad2.dpadLeftWasPressed()) {
+                kpr -= change;
+            }
+    // Notes for PID controller tuning
+            // Left bumper updates change value, to 0.1. Right bumper changes it back
+            // Up on D-pad increases linear PID values, down on D-pad decreases linear PID value
+            // Right on D-pad increases roatation PID values, left on D-pad decreases rotation PID values
+            // "Y / up" on controller sets value to change as, P
+            // "B / right" on controller sets value to change as, I
+            // "A / down" on controller sets value to change as, D
 
-
-
-            telemetry.addData("PID Values", "kp: %.5f ki: %.5f kd: %.5f", kpl, kil, kdl);
+            telemetry.addData("Linear PID Values", "kp: %.5f ki: %.5f kd: %.5f", kpl, kil, kdl);
+            telemetry.addData("Rotation PID Values", "kp: %.5f ki: %.5f kd: %.5f", kpr, kir, kdr);
             telemetry.addData("PID Change", change);
             telemetry.addData("Side", team);
             idle();
@@ -116,7 +140,7 @@ public class PIDControllerTesting extends LinearOpMode {
         stateTimer.reset();
         try {
             // write code here for autonomous
-            driveTrain.driveToRelative(12, 12, 0, 1.0, isRed, imu, kpl, kil, kdl, 1, 0, 0);
+            driveTrain.driveToRelative(12, 12, 0, 1.0, isRed, imu, kpl, kil, kdl, kpr, kir, kdr);
 
 
             // write code here for autonomous
