@@ -142,7 +142,7 @@ public class PIDControllerTesting extends LinearOpMode {
         stateTimer.reset();
         try {
             // write code here for autonomous
-            driveTrain.driveToRelative(-45, 12, 0, 1.0, isRed, imu, kpl, kil, kdl, kpr, kir, kdr);
+            driveTrain.driveToRelative(-45, 12, 0, 1.0, imu, kpl, kil, kdl, kpr, kir, kdr);
 
 
             // write code here for autonomous

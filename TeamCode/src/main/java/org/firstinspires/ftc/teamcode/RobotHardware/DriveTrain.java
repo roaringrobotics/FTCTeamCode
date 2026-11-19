@@ -69,7 +69,6 @@ public class DriveTrain {
         power = Math.min(power, 1.0);
         power = Math.max(power, -1.0);
         backLeft.setPower(power);
-
     }
 
     public void setBackRightPower(double power) {
@@ -117,16 +116,10 @@ public class DriveTrain {
         double vectorSum = Math.abs(robotX) + Math.abs(robotY) + Math.abs(rightStickX);
         double denom = Math.max(vectorSum, 1.0);
 
-        double frontLeftPower = (robotY - robotX + rightStickX); // denom;
-        double backLeftPower = (robotY + robotX + rightStickX); // denom;
-        double frontRightPower = (robotY - robotX - rightStickX); // denom;
-        double backRightPower = (robotY + robotX - rightStickX); // denom;
-
-        dashboardTelemetry.addData("Front Left Power", frontLeftPower);
-        dashboardTelemetry.addData("Back Left Power", backLeftPower);
-        dashboardTelemetry.addData("Front Right Power", frontRightPower);
-        dashboardTelemetry.addData("Back Right Power", backRightPower);
-        dashboardTelemetry.update();
+        double frontLeftPower = (robotY - robotX + rightStickX) / denom;
+        double backLeftPower = (robotY + robotX + rightStickX) / denom;
+        double frontRightPower = (robotY - robotX - rightStickX) / denom;
+        double backRightPower = (robotY + robotX - rightStickX) / denom;
 
         setFrontLeftPower(frontLeftPower * powerScale);
         setBackLeftPower(backLeftPower * powerScale);
@@ -135,10 +128,12 @@ public class DriveTrain {
     }
     public void driveFieldCentric(double fieldX, double fieldY, double rightStickX,
                                    double powerScale, PinpointImpl imu) {
-        // Takes joystick input and sets motor power levels to drive
-        // robot field centric.
-        // fieldX is the field centric away/towards driver stick input (forward/back)
-        // fieldY is the field centric horizontal movement.
+
+        /* Takes joystick input and sets motor power levels to drive
+         * robot field centric.
+         * fieldX is the field centric away/towards driver stick input (forward/back)
+         * fieldY is the field centric horizontal movement.
+         */
         imu.update();
         double botHeading = imu.getHeading(AngleUnit.RADIANS);
 
@@ -153,8 +148,8 @@ public class DriveTrain {
     }
     @SuppressLint("DefaultLocale")
     private void getFieldCentricPowerLevels(
-            double fieldX, // + away from driver, - towards driver
-            double fieldY, // + left, - right
+            double fieldX, // - left, + right
+            double fieldY, // + foward, - back (towards the driver)
             double rotate, double botHeading) {
 
         // Delegate computation to testable static helper
@@ -182,22 +177,13 @@ public class DriveTrain {
             double botHeading) {
         FieldCentricPowerLevels out = new FieldCentricPowerLevels();
 
-        // Invert Y axis if needed.  Using gobilda pinpoint convention.
-        double fy = -fieldY;
-        double fx = -fieldX;
-
         // Y is forward (vertical) direction, X is the strafe (horizontal direction)
-        double robotY = fy * Math.cos(-botHeading) + fieldX * Math.sin(-botHeading);
-        double robotX = -fy * Math.sin(-botHeading) + fieldX * Math.cos(-botHeading);
+        double robotY = -fieldY * Math.cos(-botHeading) + fieldX * Math.sin(-botHeading);
+        double robotX = fieldY * Math.sin(-botHeading) + fieldX * Math.cos(-botHeading);
 
         // Normalize output power [-1.0-1.0]
         double vectorSum = Math.abs(robotX) + Math.abs(robotY) + Math.abs(rotate);
         double denom = Math.max(vectorSum, 1.0);
-
-//        out.frontLeftPower = (robotY + robotX + rotate) / denom;
-//        out.backLeftPower = (-robotY + robotX + rotate) / denom;
-//        out.frontRightPower = (-robotY + robotX - rotate) / denom;
-//        out.backRightPower = (robotY + robotX - rotate) / denom;
 
         out.frontLeftPower = (robotY + robotX + rotate) / denom;
         out.backLeftPower = (robotY - robotX + rotate) / denom;
@@ -207,7 +193,6 @@ public class DriveTrain {
         return out;
     }
 
-    // Class to hold field centric power level output from getFieldCentricPowerLevels
     @SuppressLint("DefaultLocale")
     public void driveStraight(double distance, double power, ImuPositionI imu, LogI log,
                               double kP, double kI, double kD) throws Exception {
@@ -317,18 +302,15 @@ public class DriveTrain {
                                 double y,
                                 double endDegrees,
                                 double power,
-                                boolean isRed,
                                 PinpointImpl imu, double kpl, double kil, double kdl, double kpr, double kir, double kdr) throws Exception {
+        // Update the imu so we can get new outputs
         imu.update();
         Pose2D startPose = imu.getPose();
 
-        if (isRed) {
-            x = -x;
-            endDegrees = -endDegrees;
-        }
-        if (endDegrees > 180) {
-            endDegrees -= 360;
-        }
+//        double rotateSign = 1.0;
+//        if (endDegrees < 0) {
+//            rotateSign = -1.0;
+//        }
 
         // Calculate target pose in field coordinates
         Pose2D targetPose = new Pose2D(
@@ -338,20 +320,15 @@ public class DriveTrain {
                 AngleUnit.DEGREES,
                 endDegrees);
 
-//        double linearPercentage;
-//        double roationPercentage;
         double targetDistance = Math.sqrt(x * x + y * y);
 
         // PID controllers
         PID drivePID = new PID(kpl, kil, kdl);     // For position control
         PID rotatePID = new PID(kpr, kir, kdr); // For rotation control
 
-        final double distanceTolerance = 0.25;  // inches
-        final double angleTolerance = 1.0;     // degrees
+        final double distanceTolerance = 0.5;  // inches
+        final double angleTolerance = 2.0;     // degrees
         final double minDrivePower = 0.12;
-        final double minRotatePower = 0.15;
-        final double maxDrivePower = 1.0;
-        final double maxRotatePower = 1.0;
         final int settleCountsRequired = 5;
 
         int settleCount = 0;
@@ -415,10 +392,12 @@ public class DriveTrain {
 //                if (curHeading < 0) {
 //                    curHeading += 360;
 //                }
-//                if (curHeading > 0) curHeading -= 360;
-//                if (curHeading <= 0) curHeading += 360;
-                rotatePower = rotatePID.calculate(endDegrees, curHeading);
+//                if (curHeading < 0) curHeading += 360;
+//                double endDegreesPid = endDegrees;
+//                if (endDegrees < 0) endDegreesPid += 360;
+                rotatePower = rotatePID.calculate(endDegrees, Math.abs(curHeading));
                 rotatePower = Util.clamp(rotatePower, -1, 1);
+//                rotatePower *= rotateSign;
                 // Apply minimum rotation power
 //                if (Math.abs(rotatePower) < minRotatePower && Math.abs(headingError) > angleTolerance) {
 //                    rotatePower = minRotatePower * Math.signum(rotatePower);
@@ -440,9 +419,6 @@ public class DriveTrain {
             double vectorSum = Math.abs(robotY) + Math.abs(robotX) + Math.abs(rotatePower);
             double denom = Math.max(vectorSum, 1.0);
 
-            // Testing values for rotation
-//            robotY = 0.0;
-//            robotX = 0.0;
 
             double flPower = (robotY + robotX - rotatePower) / denom;
             double blPower = (robotY - robotX - rotatePower) / denom;
@@ -482,13 +458,13 @@ public class DriveTrain {
         return Math.max(min, Math.min(max, value));
     }
     public void driveToFieldCentric(double x, double y, double endDegrees, double power, PinpointImpl imu) {
+        // convert field centric inputs to relative inputs
         Pose2D pos = imu.getPose();
         x = x - pos.getX(DistanceUnit.INCH);
         y = y - pos.getY(DistanceUnit.INCH);
 
-
         try {
-            driveToRelative(x, y, endDegrees, power, false, imu, 1, 0, 0, 1, 0, 0);
+            driveToRelative(x, y, endDegrees, power, imu, 1, 0, 0, 1, 0, 0);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

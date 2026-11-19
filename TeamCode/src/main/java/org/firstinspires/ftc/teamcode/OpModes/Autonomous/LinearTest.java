@@ -114,18 +114,20 @@ public class LinearTest extends LinearOpMode {
 
         // Start autonomous
         stateTimer.reset();
-        try {
-            driveTrain.driveToFieldCentric(-12, -12, 45, power, imu);
-            driveTrain.driveToFieldCentric(12, -12, -45, power, imu);
-            driveTrain.driveToFieldCentric(12, 12, 45, power, imu);
-            driveTrain.driveToFieldCentric(-12, 12, -45, power, imu);
-            driveTrain.driveToFieldCentric(0, 0, 0, power, imu);
-
-            dashboardTelemetry.addData("Done!", "");
-            dashboardTelemetry.update();
-            driveTrain.stopMotors();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        driveTrain.driveToFieldCentric(-42, 12, 180, power, imu);
+        driveTrain.driveToFieldCentric(-50, 10, 0, power, imu);
+//        try {
+//
+////            driveTrain.driveToFieldCentric(12, -12, -45, power, imu);
+////            driveTrain.driveToFieldCentric(12, 12, 45, power, imu);
+////            driveTrain.driveToFieldCentric(-12, 12, -45, power, imu);
+////            driveTrain.driveToFieldCentric(0, 0, 0, power, imu);
+//
+//            dashboardTelemetry.addData("Done!", "");
+//            dashboardTelemetry.update();
+//            driveTrain.stopMotors();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
     }
 }
