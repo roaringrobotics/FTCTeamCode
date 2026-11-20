@@ -1,5 +1,5 @@
 // language: java
-package org.firstinspires.ftc.teamcode.OpModes.Autonomous;
+package org.firstinspires.ftc.teamcode.OpModes.Autonomous.Tests;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -118,18 +118,5 @@ public class LinearTest extends LinearOpMode {
         sleep(1000);
         driveTrain.driveToFieldCentric(-42, 12, 180, power);
         driveTrain.driveToFieldCentric(-50, 10, 0, power);
-//        try {
-//
-////            driveTrain.driveToFieldCentric(12, -12, -45, power, imu);
-////            driveTrain.driveToFieldCentric(12, 12, 45, power, imu);
-////            driveTrain.driveToFieldCentric(-12, 12, -45, power, imu);
-////            driveTrain.driveToFieldCentric(0, 0, 0, power, imu);
-//
-//            dashboardTelemetry.addData("Done!", "");
-//            dashboardTelemetry.update();
-//            driveTrain.stopMotors();
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
     }
 }

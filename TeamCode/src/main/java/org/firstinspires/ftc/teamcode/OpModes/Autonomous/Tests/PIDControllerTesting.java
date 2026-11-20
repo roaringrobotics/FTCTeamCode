@@ -1,21 +1,14 @@
-// language: java
-package org.firstinspires.ftc.teamcode.OpModes.Autonomous;
-
+package org.firstinspires.ftc.teamcode.OpModes.Autonomous.Tests;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Implementations.AndroidLog;
 import org.firstinspires.ftc.teamcode.Implementations.SystemTimeSource;
-import org.firstinspires.ftc.teamcode.Math.Util;
-import org.firstinspires.ftc.teamcode.Pathing.PID;
 import org.firstinspires.ftc.teamcode.Pathing.PowerRampController;
 import org.firstinspires.ftc.teamcode.RobotHardware.DriveTrain;
-import org.firstinspires.ftc.teamcode.RobotHardware.Intake;
 import org.firstinspires.ftc.teamcode.RobotHardware.PinpointImpl;
-import org.firstinspires.ftc.teamcode.RobotHardware.Shooter;
 
 
 /*
@@ -25,14 +18,11 @@ import org.firstinspires.ftc.teamcode.RobotHardware.Shooter;
   - timed transitions using ElapsedTime
   - helper methods to set/stop drive power
 */
-
-@Autonomous(name = "Heading Test", group = "Test")
-public class HeadingTest extends LinearOpMode {
+@Autonomous(group = "Test")
+public class PIDControllerTesting extends LinearOpMode {
 
     private DriveTrain driveTrain;
-    private Shooter shooter;
     private PinpointImpl imu;
-    private Intake intake;
     private final AndroidLog log = new AndroidLog();
 
 
@@ -40,39 +30,28 @@ public class HeadingTest extends LinearOpMode {
     private DcMotor leftDrive = null;
     private DcMotor rightDrive = null;
 
+    // autonomous 30s timer
     private final ElapsedTime stateTimer = new ElapsedTime();
 
     @Override
     public void runOpMode() throws InterruptedException {
         driveTrain = new DriveTrain(hardwareMap);
         imu = new PinpointImpl(hardwareMap);
-        intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap, intake, log);
 
         PowerRampController rampDrive = new PowerRampController(
                 .1,
                 new SystemTimeSource());
-        double kp = 0.02;
-        double ki = 0;
-        double kd = 0;
+        // define PID controller starter values for PID testing
+        double kpl = 0.05;
+        double kil = 0;
+        double kdl = 0.08;
+        // PID controller values, for rotation
+        double kpr = 1;
+        double kir = 0;
+        double kdr = 0;
 
         boolean isRed = false;
 
-//        Through testing y's and x's are flipped
-//        instead of:
-//                y
-//                |
-//                |
-//       ------------------x
-//                |
-//                |
-//         we have:
-//                x
-//                |
-//                |
-//       ------------------y
-//                |
-//                |
 
         double y = 0;
         double x = 0;
@@ -99,30 +78,55 @@ public class HeadingTest extends LinearOpMode {
                 team = "Blue Side";
             }
 
+
+            // PID controller testing
+            // used the defined variables
             if (gamepad2.rightBumperWasPressed()) {
                 change *= 0.1;
             } else if (gamepad2.leftBumperWasPressed()) {
                 change *= 10;
             }
 
-
+            // linear PID value changing during initialization
             if (gamepad2.a && gamepad2.dpadUpWasReleased()) {
-                kd += change;
+                kdl += change;
             } else if (gamepad2.a && gamepad2.dpadDownWasPressed()) {
-                kd -= change;
+                kdl -= change;
             } else if (gamepad2.b && gamepad2.dpadUpWasReleased()) {
-                ki += change;
+                kil += change;
             } else if (gamepad2.b && gamepad2.dpadDownWasPressed()) {
-                ki -= change;
+                kil -= change;
             } else if (gamepad2.y && gamepad2.dpadUpWasReleased()) {
-                kp += change;
+                kpl += change;
             } else if (gamepad2.y && gamepad2.dpadDownWasPressed()) {
-                kp -= change;
+                kpl -= change;
             }
 
+            // roatation PID value changing during initialization
+            if (gamepad2.a && gamepad2.dpadRightWasReleased()) {
+                kdr += change;
+            } else if (gamepad2.a && gamepad2.dpadLeftWasPressed()) {
+                kdr -= change;
+            } else if (gamepad2.b && gamepad2.dpadRightWasReleased()) {
+                kir += change;
+            } else if (gamepad2.b && gamepad2.dpadLeftWasPressed()) {
+                kir -= change;
+            } else if (gamepad2.y && gamepad2.dpadRightWasReleased()) {
+                kpr += change;
+            } else if (gamepad2.y && gamepad2.dpadLeftWasPressed()) {
+                kpr -= change;
+            }
+    /* Notes for PID controller tuning
+             Left bumper updates change value, to 0.1. Right bumper changes it back
+             Up on D-pad increases linear PID values, down on D-pad decreases linear PID value
+             Right on D-pad increases roatation PID values, left on D-pad decreases rotation PID values
+             "Y / up" on controller sets value to change as, P
+             "B / right" on controller sets value to change as, I
+             "A / down" on controller sets value to change as, D
+     */
 
-
-            telemetry.addData("PID Values", "kp: %.5f ki: %.5f kd: %.5f", kp, ki, kd);
+            telemetry.addData("Linear PID Values", "kp: %.5f ki: %.5f kd: %.5f", kpl, kil, kdl);
+            telemetry.addData("Rotation PID Values", "kp: %.5f ki: %.5f kd: %.5f", kpr, kir, kdr);
             telemetry.addData("PID Change", change);
             telemetry.addData("Side", team);
             idle();
@@ -134,10 +138,14 @@ public class HeadingTest extends LinearOpMode {
 
         // Start autonomous
         stateTimer.reset();
-        while (opModeIsActive()) {
-            imu.update();
-            log.d("Heading", String.valueOf(imu.getHeading(AngleUnit.DEGREES)));
+        try {
+            // write code here for autonomous
+            driveTrain.driveToRelative(-45, 12, 0, 1.0, kpl, kil, kdl, kpr, kir, kdr);
 
+
+            // write code here for autonomous
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
