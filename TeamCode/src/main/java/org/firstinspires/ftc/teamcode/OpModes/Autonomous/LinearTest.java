@@ -114,8 +114,8 @@ public class LinearTest extends LinearOpMode {
 
         // Start autonomous
         stateTimer.reset();
-        driveTrain.driveToFieldCentric(-42, 12, 180, power, imu);
-        driveTrain.driveToFieldCentric(-50, 10, 0, power, imu);
+        driveTrain.driveToFieldCentric(-42, 12, 180, power);
+        driveTrain.driveToFieldCentric(-50, 10, 0, power);
 //        try {
 //
 ////            driveTrain.driveToFieldCentric(12, -12, -45, power, imu);

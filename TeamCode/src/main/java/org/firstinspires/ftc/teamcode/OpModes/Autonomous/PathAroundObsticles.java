@@ -56,11 +56,11 @@ public class PathAroundObsticles extends LinearOpMode {
 
         stateTimer.reset();
 
-        driveTrain.driveToFieldCentric(-18, 112, 0, power, imu);
-        driveTrain.driveToFieldCentric(30, 112, 180, power, imu);
-        driveTrain.driveToFieldCentric(30, 44, 180, power, imu);
-        driveTrain.driveToFieldCentric(0,10 , 0, power, imu);
-        driveTrain.driveToFieldCentric(0,0 , 0, power, imu);
+        driveTrain.driveToFieldCentric(-18, 112, 0, power);
+        driveTrain.driveToFieldCentric(30, 112, 180, power);
+        driveTrain.driveToFieldCentric(30, 44, 180, power);
+        driveTrain.driveToFieldCentric(0,10 , 0, power);
+        driveTrain.driveToFieldCentric(0,0 , 0, power);
 
 
     }

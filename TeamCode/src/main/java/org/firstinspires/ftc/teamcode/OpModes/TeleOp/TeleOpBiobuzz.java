@@ -32,7 +32,7 @@ import org.firstinspires.ftc.teamcode.RobotHardware.Shooter;
             imu = new PinpointImpl(hardwareMap);
             imu.reset();
             waitForStart();
-            driveTrain.driveToFieldCentric(0, 12, 90, 0.5, imu);
+            driveTrain.driveToFieldCentric(0, 12, 90, 0.5);
             imu.reset();
             sleep(300);
             while (opModeIsActive()) {
@@ -41,7 +41,7 @@ import org.firstinspires.ftc.teamcode.RobotHardware.Shooter;
                 double rotate = gamepad1.right_stick_x;
                 double powerScale = driveTrain.powerScaler(gamepad1.right_bumper, gamepad1.left_bumper);
 
-                driveTrain.driveFieldCentric(fieldX, fieldY, rotate, powerScale, imu);
+                driveTrain.driveFieldCentric(fieldX, fieldY, rotate, powerScale);
 
                 if (gamepad1.options) {
                     imu.reset();

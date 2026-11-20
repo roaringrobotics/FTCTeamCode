@@ -27,6 +27,7 @@ public class DriveTrain {
     public DcMotor backLeft;
     public DcMotor backRight;
     public FieldCentricPowerLevels fcPowerLevels = new FieldCentricPowerLevels();
+    public PinpointImpl imu;
     private final AndroidLog log = new AndroidLog();
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -50,6 +51,7 @@ public class DriveTrain {
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        imu = new PinpointImpl(hardwareMap);
     }
 
     public void setFrontLeftPower(double power) {
@@ -127,7 +129,7 @@ public class DriveTrain {
         setFrontRightPower(backRightPower * powerScale);
     }
     public void driveFieldCentric(double fieldX, double fieldY, double rightStickX,
-                                   double powerScale, PinpointImpl imu) {
+                                   double powerScale) {
 
         /* Takes joystick input and sets motor power levels to drive
          * robot field centric.
@@ -302,7 +304,7 @@ public class DriveTrain {
                                 double y,
                                 double endDegrees,
                                 double power,
-                                PinpointImpl imu, double kpl, double kil, double kdl, double kpr, double kir, double kdr) throws Exception {
+                                double kpl, double kil, double kdl, double kpr, double kir, double kdr) throws Exception {
         // Update the imu so we can get new outputs
         imu.update();
         Pose2D startPose = imu.getPose();
@@ -457,14 +459,14 @@ public class DriveTrain {
         if (min > max) throw new IllegalArgumentException("min must be <= max");
         return Math.max(min, Math.min(max, value));
     }
-    public void driveToFieldCentric(double x, double y, double endDegrees, double power, PinpointImpl imu) {
+    public void driveToFieldCentric(double x, double y, double endDegrees, double power) {
         // convert field centric inputs to relative inputs
         Pose2D pos = imu.getPose();
         x = x - pos.getX(DistanceUnit.INCH);
         y = y - pos.getY(DistanceUnit.INCH);
 
         try {
-            driveToRelative(x, y, endDegrees, power, imu, 1, 0, 0, 1, 0, 0);
+            driveToRelative(x, y, endDegrees, power, 1, 0, 0, 1, 0, 0);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
