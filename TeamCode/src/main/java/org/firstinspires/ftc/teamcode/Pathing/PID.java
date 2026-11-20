@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Pathing;
 
+import org.firstinspires.ftc.teamcode.Math.Util;
+
 public class PID {
     private double kP, kI, kD;
     private double previousError = 0;
@@ -13,8 +15,23 @@ public class PID {
 
     public double calculate(double target, double current) {
         double error = target - current;
-        // This line will give an undefined value if included after enough time, we should put a limit on it when we come time to needing the integral
-        // integral += error;
+
+//        These lines keep causing undefined values, will be fixed later
+//        integral += error;
+//        integral = Util.clamp(integral, -1.0, 1.0);
+
+        double derivative = error - previousError;
+        previousError = error;
+
+        return kP * error + kI * integral + kD * derivative;
+    }
+
+    // This function is for if we have already calculated the error
+    public double calculate(double error) {
+//        These lines keep causing undefined values, will be fixed later
+//        integral += error;
+//        integral = Util.clamp(integral, -1.0, 1.0);
+
         double derivative = error - previousError;
         previousError = error;
 

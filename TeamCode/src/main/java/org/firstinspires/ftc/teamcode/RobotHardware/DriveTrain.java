@@ -309,10 +309,7 @@ public class DriveTrain {
         imu.update();
         Pose2D startPose = imu.getPose();
 
-//        double rotateSign = 1.0;
-//        if (endDegrees < 0) {
-//            rotateSign = -1.0;
-//        }
+        endDegrees = Util.angleWrapDegrees(endDegrees);
 
         // Calculate target pose in field coordinates
         Pose2D targetPose = new Pose2D(
@@ -351,9 +348,9 @@ public class DriveTrain {
             double remainingDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
             // Calculate heading error
-            double headingError = endDegrees - curHeading;
-            while (headingError >= 180) headingError -= 360;
-            while (headingError <= -180) headingError += 360;
+            double headingError = Util.angleWrapDegrees(endDegrees - curHeading);
+//            while (headingError >= 180) headingError -= 360;
+//            while (headingError <= -180) headingError += 360;
 
             // Check if we're on target
             boolean positionOnTarget = remainingDistance <= distanceTolerance;
@@ -397,7 +394,7 @@ public class DriveTrain {
 //                if (curHeading < 0) curHeading += 360;
 //                double endDegreesPid = endDegrees;
 //                if (endDegrees < 0) endDegreesPid += 360;
-                rotatePower = rotatePID.calculate(endDegrees, Math.abs(curHeading));
+                rotatePower = rotatePID.calculate(headingError);
                 rotatePower = Util.clamp(rotatePower, -1, 1);
 //                rotatePower *= rotateSign;
                 // Apply minimum rotation power
