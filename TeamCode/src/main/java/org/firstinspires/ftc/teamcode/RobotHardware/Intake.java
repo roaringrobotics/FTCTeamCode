@@ -11,7 +11,7 @@ public class Intake {
 
     // Default constructor uses device name "intakeMotor"
     public Intake(HardwareMap hardwareMap) {
-        this(hardwareMap, "intake");
+        this(hardwareMap, "intake1");
     }
 
     // Constructor allowing a custom device name

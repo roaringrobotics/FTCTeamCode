@@ -57,7 +57,7 @@ public class Decode extends LinearOpMode {
         driveTrain = new DriveTrain(hardwareMap);
         imu = new PinpointImpl(hardwareMap);
         intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap, intake, log);
+        shooter = new Shooter(hardwareMap, log);
         PID pid = new PID(0.85, 0, 0);
         PID pidRotate = new PID(0.01, 0, 0);
         PowerRampController rampDrive = new PowerRampController(
@@ -178,7 +178,7 @@ public class Decode extends LinearOpMode {
             shooter.resetShooter();
             sleep(1);
             driveTrain.rotateRelative(-135 * mirrorField, imu, log);
-            shooter.startIntake();
+            //shooter.startIntake();
             driveTrain.driveStraight(36, 0.4, imu, log, kp, ki, kd);
             shooter.resetShooter();
             sleep(1);
@@ -193,7 +193,7 @@ public class Decode extends LinearOpMode {
             shooter.resetShooter();
             driveTrain.rotateRelative(-135 * mirrorField, imu, log);
             driveTrain.driveStrafe(24 * mirrorField, 0.7, imu, log, kps, ki, kds);
-            shooter.startIntake();
+            //shooter.startIntake();
             driveTrain.driveStraight(40, 0.6, imu, log, kp, ki, kd);
             shooter.resetShooter();
             driveTrain.driveStraight(-4, 0.6, imu, log, kp, ki, kd);

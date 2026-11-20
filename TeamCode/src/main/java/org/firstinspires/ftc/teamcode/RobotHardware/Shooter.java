@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.RobotHardware;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -14,15 +12,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Implementations.AndroidLog;
 
 public class Shooter {
+    private final DcMotorEx intakeMotor;
     private final DcMotorEx shooterMotor;
-    private final DcMotorEx shooterMotor2;
-    public final CRServo blueServo;
-    public final CRServo blackServo;
+    //public final CRServo blueServo;
+    //public final CRServo blackServo;
     public long lastTime;
     public double lastVelocity;
     private int[] velocityBuffer = {(1000), (1100), (1345)};
     private int allowedError = 200;
-    private Intake intake;
+//    private Intake intake;
     public AndroidLog log;
     VoltageSensor voltSensor;
 
@@ -41,10 +39,10 @@ public class Shooter {
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
 
-    public Shooter(HardwareMap hardwareMap, Intake in, AndroidLog logIn) {
+    public Shooter(HardwareMap hardwareMap, AndroidLog logIn) {
+        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
         shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter");
-        shooterMotor2 = hardwareMap.get(DcMotorEx.class, "shooter2");
-        intake = in;
+        //intake = in;
         ShooterState = ShooterState.IDLE;
         log = logIn;
 
@@ -59,67 +57,90 @@ public class Shooter {
         }
 
         // Initialize servos (use hardware names configured in your robot config)
-        blueServo = hardwareMap.get(CRServo.class, "blueServo");
-        blackServo = hardwareMap.get(CRServo.class, "blackServo");
+        //blueServo = hardwareMap.get(CRServo.class, "blueServo");
+        //blackServo = hardwareMap.get(CRServo.class, "blackServo");
 
         //Reverse bottom motor so both spin the same physical direction
+        intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
         // Default to BRAKE when power is zero
+        intakeMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         shooterMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        shooterMotor2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         // Reset encoder counts first (optional but recommended)
+        intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooterMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooterMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // Switch to RUN_USING_ENCODER mode
+        intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        shooterMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void updateKinematics(long currentTime) {
         lastTime = currentTime;
-        lastVelocity = shooterMotor.getVelocity();
+        lastVelocity = intakeMotor.getVelocity();
     }
 
-
+    // velocity is set in ticks per second
+    // GoBilda's 6000 RPM motor max ticks per second is 2800
     public void startShooterMotor(double velocity) {
         shooterMotor.setVelocity(velocity);
-        shooterMotor2.setVelocity(velocity);
+    }
+    public void startShooterMotor(double velocity, AngleUnit unit) {
+        shooterMotor.setVelocity(velocity, unit);
+    }
+
+    // velocity is set in ticks per second
+    // GoBilda's 6000 RPM motor max ticks per second is 2800
+    public void startIntakeMotor(double velocity) {
+        intakeMotor.setVelocity(velocity);
+    }
+    public void startIntakeMotor(double velocity, AngleUnit unit) {
+        intakeMotor.setVelocity(velocity, unit);
+    }
+    public void startShooter(double velocity) {
+        intakeMotor.setVelocity(velocity);
+        shooterMotor.setVelocity(velocity);
+    }
+
+    public double getShooterMotorVelocity() {
+       return shooterMotor.getVelocity();
+    }
+    public double getIntakeMotorVelocity() {
+        return intakeMotor.getVelocity();
     }
 
     public void stopShooterMotor() {
+        intakeMotor.setVelocity(0.0);
         shooterMotor.setVelocity(0.0);
-        shooterMotor2.setVelocity(0.0);
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
+        intakeMotor.setZeroPowerBehavior(behavior);
         shooterMotor.setZeroPowerBehavior(behavior);
-        shooterMotor2.setZeroPowerBehavior(behavior);
     }
 
     private void setRunMode(DcMotor.RunMode mode) {
+        intakeMotor.setMode(mode);
         shooterMotor.setMode(mode);
-        shooterMotor2.setMode(mode);
     }
 
 
-    public void stopShootServos() {
-        blueServo.setPower(0);
-        blackServo.setPower(0);
-    }
+   // public void stopShootServos() {
+   //     blueServo.setPower(0);
+   //     blackServo.setPower(0);
+    // }
 
-    public void startShootServos() {
-        blueServo.setPower(-1);
-        blackServo.setPower(1);
-    }
-    public void reverseShootServos() {
-        blueServo.setPower(1);
-        blackServo.setPower(-1);
-    }
+   // public void startShootServos() {
+   //     blueServo.setPower(-1);
+   //     blackServo.setPower(1);
+   // }
+//    public void reverseShootServos() {
+//        blueServo.setPower(1);
+//        blackServo.setPower(-1);
+//    }
 
     public void toggleShooterMotor65(boolean toggle) {
         if (toggle) {
-            if (shooterMotor.getPower() != 0)  // motor running
+            if (intakeMotor.getPower() != 0)  // motor running
                 stopShooterMotor();
             else
                 startShooterMotor(0.65);
@@ -128,7 +149,7 @@ public class Shooter {
 
     public void toggleShooterMotor60(boolean toggle) {
         if (toggle) {
-            if (shooterMotor.getPower() != 0)  // motor running
+            if (intakeMotor.getPower() != 0)  // motor running
                 stopShooterMotor();
             else
                 startShooterMotor(0.6);
@@ -137,7 +158,7 @@ public class Shooter {
 
     public void toggleShooterMotor55(boolean toggle) {
         if (toggle) {
-            if (shooterMotor.getPower() != 0)  // motor running
+            if (intakeMotor.getPower() != 0)  // motor running
                 stopShooterMotor();
             else
                 startShooterMotor(0.55);
@@ -146,7 +167,7 @@ public class Shooter {
 
     public void toggleShooterMotor50(boolean toggle) {
         if (toggle) {
-            if (shooterMotor.getPower() != 0)  // motor running
+            if (intakeMotor.getPower() != 0)  // motor running
                 stopShooterMotor();
             else
                 startShooterMotor(0.5);
@@ -155,15 +176,15 @@ public class Shooter {
 
     public void toggleShooterFeeders(boolean toggle) {
         if (toggle) {
-            if (blueServo.getPower() != 0) // feeders running
-                stopShootServos();
-            else
-                startShootServos();
+            //if (blueServo.getPower() != 0) // feeders running
+            //    stopShootServos();
+            //else
+            //    startShootServos();
         }
     }
 
     public double getShooterVelocity() {
-        return shooterMotor.getVelocity();
+        return intakeMotor.getVelocity();
     }
 
     int settleCountRequired = 15;
@@ -204,8 +225,8 @@ public class Shooter {
             ShooterState = ShooterState.IDLE;
 
         } else if (anyOn) {
-            double currentVel = shooterMotor.getVelocity();
-            double currentVelDeg = shooterMotor.getVelocity(AngleUnit.DEGREES);
+            double currentVel = intakeMotor.getVelocity();
+            double currentVelDeg = intakeMotor.getVelocity(AngleUnit.DEGREES);
             dashboardTelemetry.addData("vel", currentVel);
             dashboardTelemetry.update();
 //            log.d("Shooter", "-----------------------------------");
@@ -249,15 +270,15 @@ public class Shooter {
 //                }
 
                 ShooterState = ShooterState.SHOOTING;
-                startShootServos();
-                startIntake();
+                //startShootServos();
+                //startIntake();
                 startShooterMotor(targetVelocity);
 
 
             } else if (ShooterState == ShooterState.SHOOTING && (targetVelocity - currentVel) > allowedError) {
                 startShooterMotor(targetVelocity);
-                stopIntake();
-                stopShootServos();
+                //stopIntake();
+                //stopShootServos();
                 settleCount = 0;
                 lastShooterState = ShooterState.SHOOTING;
                 ShooterState = ShooterState.SPINNING_UP;
@@ -284,7 +305,7 @@ public class Shooter {
 
         } else {
             empty = false;
-            double currentVel = shooterMotor.getVelocity();
+            double currentVel = intakeMotor.getVelocity();
             dashboardTelemetry.addData("vel", currentVel);
             dashboardTelemetry.update();
             log.d("Shooter", "-----------------------------------");
@@ -310,15 +331,15 @@ public class Shooter {
             }
             else if (ShooterState == ShooterState.SPINNING_UP && (targetVelocity - currentVel) < allowedError) {
                 ShooterState = ShooterState.SHOOTING;
-                startShootServos();
-                startIntake();
+                //startShootServos();
+                //startIntake();
                 startShooterMotor(targetVelocity);
 
 
             } else if (ShooterState == ShooterState.SHOOTING && (targetVelocity - currentVel) > allowedError) {
                 startShooterMotor(targetVelocity);
-                stopIntake();
-                stopShootServos();
+                //stopIntake();
+                //stopShootServos();
                 settleCount = 0;
                 lastShooterState = ShooterState.SHOOTING;
                 ShooterState = ShooterState.SPINNING_UP;
@@ -352,8 +373,8 @@ public class Shooter {
             ShooterState = ShooterState.IDLE;
 
         } else if (anyOn) {
-            double currentVel = shooterMotor.getVelocity();
-            double currentVelDeg = shooterMotor.getVelocity(AngleUnit.DEGREES);
+            double currentVel = intakeMotor.getVelocity();
+            double currentVelDeg = intakeMotor.getVelocity(AngleUnit.DEGREES);
             log.d("Shooter", "-----------------------------------");
             log.d("Shooter", "Velocity (rag): " + currentVel);
             log.d("Shooter", "Velocity (deg): " + currentVelDeg);
@@ -375,10 +396,10 @@ public class Shooter {
             }
             else if (ShooterState == ShooterState.SPINNING_UP && (targetVelocity - currentVel) < allowedError) {
                 ShooterState = ShooterState.SHOOTING;
-                startShootServos();
+                //startShootServos();
             } else if (ShooterState == ShooterState.SHOOTING && (targetVelocity - currentVel) > allowedError) {
                 startShooterMotor(targetVelocity);
-                stopShootServos();
+                //stopShootServos();
                 lastShooterState = ShooterState.SHOOTING;
                 ShooterState = ShooterState.SPINNING_UP;
 
@@ -390,17 +411,17 @@ public class Shooter {
     }
 
 
-    public void startIntake() {
-            intake.startIntake();
-    }
+    //public void startIntake() {
+    //        intake.startIntake();
+    //}
 
-    public void stopIntake() {
-            intake.stopIntake();
-    }
+    //public void stopIntake() {
+    //        intake.stopIntake();
+    //}
 
-    public void reverseIntake() {
-            intake.reverseIntake();
-    }
+    //public void reverseIntake() {
+    //        intake.reverseIntake();
+    //}
 
     public int getBallsLaunched() {
         return ballsLaunched;
@@ -409,13 +430,13 @@ public class Shooter {
         ShooterState = ShooterState.IDLE;
         lastShooterState = ShooterState.IDLE;
         ballsLaunched = 0;
-        stopIntake();
+        //stopIntake();
         stopShooterMotor();
-        stopShootServos();
+        //stopShootServos();
     }
     public void setPIDValues(double kp, double ki, double kd) {
+        intakeMotor.setVelocityPIDFCoefficients(kp, ki, kd, 0);
         shooterMotor.setVelocityPIDFCoefficients(kp, ki, kd, 0);
-        shooterMotor2.setVelocityPIDFCoefficients(kp, ki, kd, 0);
     }
 }
 

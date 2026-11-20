@@ -48,7 +48,7 @@ public class DecodeShortwRedImp extends LinearOpMode {
         driveTrain = new DriveTrain(hardwareMap);
         imu = new PinpointImpl(hardwareMap);
         intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap, intake, log);
+        shooter = new Shooter(hardwareMap, log);
 
         PID pid = new PID(0.5, 0, 0);
         PID pidRotate = new PID(0.02, 0, 0);
@@ -153,11 +153,11 @@ public class DecodeShortwRedImp extends LinearOpMode {
                         allianceValue(-21 * i, -19 * i),
                         0.9, imu, log, kps, ki, kds);
 
-                shooter.startIntake();
+                //shooter.startIntake();
 
                 driveTrain.driveStraight(42, 0.9, imu, log, kp, ki, kd);
 
-                shooter.startShootServos();
+                //shooter.startShootServos();
                 sleep(300);
 
                 shooter.resetShooter();
@@ -233,11 +233,11 @@ public class DecodeShortwRedImp extends LinearOpMode {
                     );
                 }
 
-                shooter.startIntake();
+                //shooter.startIntake();
                 sleep(3000);
 
-                shooter.startShootServos();
-                shooter.startIntake();
+                //shooter.startShootServos();
+                //shooter.startIntake();
                 sleep(12000);
 
             } else {

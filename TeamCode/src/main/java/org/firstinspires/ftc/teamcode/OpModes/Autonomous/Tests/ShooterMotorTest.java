@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.OpModes.Autonomous.Tests;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Implementations.AndroidLog;
 import org.firstinspires.ftc.teamcode.Implementations.SystemTimeSource;
 import org.firstinspires.ftc.teamcode.Pathing.PID;
@@ -8,21 +9,20 @@ import org.firstinspires.ftc.teamcode.RobotHardware.Intake;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.RobotHardware.Shooter;
 
-// @Autonomous(name = "Shooter Motor PID", group = "Test")
+@Autonomous(name = "Shooter Motor", group = "Test")
 public class ShooterMotorTest extends LinearOpMode {
     private Shooter shooter;
-    private Intake intake;
     private final AndroidLog log = new AndroidLog();
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
     @Override
     public void runOpMode() {
-        intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap, intake, log);
+        shooter = new Shooter(hardwareMap, log);
 
         PID pid = new PID(0.5, 0, 0);
         PID pidRotate = new PID(0.02, 0, 0);
@@ -71,13 +71,11 @@ public class ShooterMotorTest extends LinearOpMode {
 
         // Start autonomous
         while (!isStopRequested()) {
-            shooter.startShooterMotor(1000);
-            double velocity = shooter.getShooterVelocity();
-            dashboardTelemetry.addData("Velocity", velocity);
-            dashboardTelemetry.addData("kp", kp);
-            dashboardTelemetry.addData("kd", kd);
+            shooter.startShooterMotor(-45);
+            shooter.startIntakeMotor(45);
+            dashboardTelemetry.addData("Shooter Motor", shooter.getShooterMotorVelocity());
+            dashboardTelemetry.addData("Intake Motor", shooter.getIntakeMotorVelocity());
             dashboardTelemetry.update();
-
         }
     }
 }
