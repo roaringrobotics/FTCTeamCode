@@ -23,6 +23,8 @@ public class Shooter {
 //    private Intake intake;
     public AndroidLog log;
     VoltageSensor voltSensor;
+    public static final double TICKS_PER_REV = 2786.2;
+    public static final double RPM_PER_TICKS = TICKS_PER_REV / 60;
 
 
     int ballsLaunched = 0;
@@ -82,6 +84,8 @@ public class Shooter {
     // velocity is set in ticks per second
     // GoBilda's 6000 RPM motor max ticks per second is 2800
     public void startShooterMotor(double velocity) {
+//        velocity /= RPM_PER_TICKS;
+        //shooterMotor.setVelocity(velocity);
         shooterMotor.setVelocity(velocity);
     }
     public void startShooterMotor(double velocity, AngleUnit unit) {
@@ -91,6 +95,8 @@ public class Shooter {
     // velocity is set in ticks per second
     // GoBilda's 6000 RPM motor max ticks per second is 2800
     public void startIntakeMotor(double velocity) {
+//        velocity /= RPM_PER_TICKS;
+        //intakeMotor.setVelocity(velocity);
         intakeMotor.setVelocity(velocity);
     }
     public void startIntakeMotor(double velocity, AngleUnit unit) {
@@ -100,17 +106,16 @@ public class Shooter {
         intakeMotor.setVelocity(velocity);
         shooterMotor.setVelocity(velocity);
     }
-
-    public double getShooterMotorVelocity() {
-       return shooterMotor.getVelocity();
-    }
-    public double getIntakeMotorVelocity() {
-        return intakeMotor.getVelocity();
-    }
-
     public void stopShooterMotor() {
         intakeMotor.setVelocity(0.0);
         shooterMotor.setVelocity(0.0);
+    }
+
+    public double getShooterMotorVelocity() {
+        return shooterMotor.getVelocity();
+    }
+    public double getIntakeMotorVelocity() {
+        return intakeMotor.getVelocity();
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
@@ -123,16 +128,20 @@ public class Shooter {
         shooterMotor.setMode(mode);
     }
 
+    public void setPIDValues(double kp, double ki, double kd) {
+        intakeMotor.setVelocityPIDFCoefficients(kp, ki, kd, 12);
+        shooterMotor.setVelocityPIDFCoefficients(kp, ki, kd, 12);
+    }
 
-   // public void stopShootServos() {
-   //     blueServo.setPower(0);
-   //     blackServo.setPower(0);
+    // public void stopShootServos() {
+    //     blueServo.setPower(0);
+    //     blackServo.setPower(0);
     // }
 
-   // public void startShootServos() {
-   //     blueServo.setPower(-1);
-   //     blackServo.setPower(1);
-   // }
+    // public void startShootServos() {
+    //     blueServo.setPower(-1);
+    //     blackServo.setPower(1);
+    // }
 //    public void reverseShootServos() {
 //        blueServo.setPower(1);
 //        blackServo.setPower(-1);
@@ -433,10 +442,6 @@ public class Shooter {
         //stopIntake();
         stopShooterMotor();
         //stopShootServos();
-    }
-    public void setPIDValues(double kp, double ki, double kd) {
-        intakeMotor.setVelocityPIDFCoefficients(kp, ki, kd, 0);
-        shooterMotor.setVelocityPIDFCoefficients(kp, ki, kd, 0);
     }
 }
 

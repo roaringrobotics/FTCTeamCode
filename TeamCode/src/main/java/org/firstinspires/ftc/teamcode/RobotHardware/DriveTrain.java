@@ -32,10 +32,11 @@ public class DriveTrain {
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
     // Built in PID Values
+    // Linear values
     double kpl = 1.0;
     double kil = 0.0;
     double kdl = 0.0;
-
+    // Rotation values
     double kpr = 1.0;
     double kir = 0.0;
     double kdr = 0.0;

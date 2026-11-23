@@ -34,7 +34,7 @@ public class ShooterMotorTest extends LinearOpMode {
         double x = 0;
         double h = 0;
 
-        double kp = 500.0;
+        double kp = 100.0;
         double ki = 0.0;
         double kd = 0.0;
         double change = 10;
@@ -44,18 +44,28 @@ public class ShooterMotorTest extends LinearOpMode {
 
         // show init telemetry until start pressed
         while (!isStarted() && !isStopRequested()) {
-            telemetry.addData("Status", "Initialized");
             telemetry.addData("Hint", "Waiting for start - update sensors/vision here");
 
+            // Changing PID values on driver hub
+            if (gamepad2.rightBumperWasPressed()) {
+                change *= 0.1;
+            } else if (gamepad2.leftBumperWasPressed()) {
+                change *= 10;
+            }
 
-            if (gamepad2.dpadUpWasPressed() && gamepad2.a) kp += change;
-            else if (gamepad2.dpadDownWasPressed() && gamepad2.a) kp -= change;
-
-            if (gamepad2.dpadUpWasPressed() && gamepad2.b) kd += change;
-            else if (gamepad2.dpadDownWasPressed() && gamepad2.b) kd -= change;
-
-            if (gamepad2.rightBumperWasPressed()) change *= 10;
-            else if (gamepad2.leftBumperWasPressed()) change *= 0.1;
+            if (gamepad2.a && gamepad2.dpadUpWasReleased()) {
+                kd += change;
+            } else if (gamepad2.a && gamepad2.dpadDownWasPressed()) {
+                kd -= change;
+            } else if (gamepad2.b && gamepad2.dpadUpWasReleased()) {
+                ki += change;
+            } else if (gamepad2.b && gamepad2.dpadDownWasPressed()) {
+                ki -= change;
+            } else if (gamepad2.y && gamepad2.dpadUpWasReleased()) {
+                kp += change;
+            } else if (gamepad2.y && gamepad2.dpadDownWasPressed()) {
+                kp -= change;
+            }
 
             telemetry.addData("PID Values", "kp: %.5f ki: %.5f kd: %.5f", kp, ki, kd);
             telemetry.addData("PID Change", change);
@@ -63,16 +73,24 @@ public class ShooterMotorTest extends LinearOpMode {
             shooter.setPIDValues(kp, ki, kd);
         }
 
-
-
-        // these are for strafing
-        double kps = 0.13;
-        double kds = 0.29;
-
         // Start autonomous
         while (!isStopRequested()) {
             shooter.startShooterMotor(-45);
             shooter.startIntakeMotor(45);
+//            if (gamepad2.right_bumper) {
+//                shooter.startShooterMotor(-45);
+//                shooter.startIntakeMotor(45);
+//            }
+//            else if (gamepad2.right_trigger > 0.25) {
+//                shooter.startIntakeMotor(45);
+//            }
+//            else if (gamepad2.left_trigger > 0.25) {
+//                shooter.startShooterMotor(-45);
+//            }
+//            else {
+//                shooter.startShooterMotor(0);
+//                shooter.startIntakeMotor(0);
+//            }
             dashboardTelemetry.addData("Shooter Motor", shooter.getShooterMotorVelocity());
             dashboardTelemetry.addData("Intake Motor", shooter.getIntakeMotorVelocity());
             dashboardTelemetry.update();
