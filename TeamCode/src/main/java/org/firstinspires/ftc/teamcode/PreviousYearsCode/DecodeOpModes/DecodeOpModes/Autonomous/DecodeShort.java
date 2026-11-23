@@ -48,7 +48,7 @@ public class DecodeShort extends LinearOpMode {
         driveTrain = new DriveTrain(hardwareMap);
         imu = new PinpointImpl(hardwareMap);
         intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap, intake, log);
+        shooter = new Shooter(hardwareMap, log);
         PID pid = new PID(0.5, 0, 0);
         PID pidRotate = new PID(0.02, 0, 0);
         PowerRampController rampDrive = new PowerRampController(
@@ -146,10 +146,10 @@ public class DecodeShort extends LinearOpMode {
             for (int i = 1; i <= rows; i++) {
                 driveTrain.rotateRelative(-113 * mirrorField, imu, log);
                 driveTrain.driveStrafe(-21 * i * mirrorField, 0.9, imu, log, kps, ki, kds);
-                shooter.startIntake();
+                //shooter.startIntake();
                 driveTrain.driveStraight(42, 0.9, imu, log, kp, ki, kd);
 
-                shooter.startShootServos();
+                //shooter.startShootServos();
                 sleep(300);
                 shooter.resetShooter();
                 shooter.startShooterMotor((i > 1 ? 1100 : 1350));
@@ -182,12 +182,12 @@ public class DecodeShort extends LinearOpMode {
                     driveTrain.driveStrafe(49 * mirrorField, 0.9, imu, log, kps, ki, kds);
                 }
 //                driveTrain.rotateRelative(-90 * mirrorField, imu, log);
-                shooter.startIntake();
+                //shooter.startIntake();
 
                 // wait for balls to start to be intaken
                 sleep(3000);
-                shooter.startShootServos();
-                shooter.startIntake();
+                //shooter.startShootServos();
+                //shooter.startIntake();
                 // sleep until auto is over
                 sleep(12000);
             } else {

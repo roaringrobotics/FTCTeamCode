@@ -44,7 +44,7 @@ public class DecodeFromBasket extends LinearOpMode {
         driveTrain = new DriveTrain(hardwareMap);
         imu = new PinpointImpl(hardwareMap);
         intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap, intake, log);
+        shooter = new Shooter(hardwareMap, log);
         PID pid = new PID(0.8, 0, 0);
         PID pidRotate = new PID(0.02, 0, 0);
         PowerRampController rampDrive = new PowerRampController(
@@ -133,11 +133,11 @@ public class DecodeFromBasket extends LinearOpMode {
                 }
                 driveTrain.rotateRelative((i == 0 ? -140 : -132) * mirrorField, imu, log);
                 driveTrain.driveStrafe(25 * i * mirrorField, 0.9, imu, log, kps, ki, kds);
-                shooter.startIntake();
+                //shooter.startIntake();
                 driveTrain.driveStraight(40 + i * 5, 0.9, imu, log, kp, ki, kd);
 
                 // keep the intake running for a bit to ensure we get the balls in
-                shooter.startShootServos();
+                //shooter.startShootServos();
                 sleep(300);
                 shooter.resetShooter();
                 driveTrain.driveStraight(-40 + i * 5, 0.9, imu, log, kp, ki, kd);

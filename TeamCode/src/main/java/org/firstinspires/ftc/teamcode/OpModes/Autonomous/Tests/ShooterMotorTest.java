@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.OpModes.Autonomous.Tests;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Implementations.AndroidLog;
 import org.firstinspires.ftc.teamcode.Implementations.SystemTimeSource;
 import org.firstinspires.ftc.teamcode.Pathing.PID;
@@ -8,21 +9,20 @@ import org.firstinspires.ftc.teamcode.RobotHardware.Intake;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.RobotHardware.Shooter;
 
-// @Autonomous(name = "Shooter Motor PID", group = "Test")
+@Autonomous(name = "Shooter Motor", group = "Test")
 public class ShooterMotorTest extends LinearOpMode {
     private Shooter shooter;
-    private Intake intake;
     private final AndroidLog log = new AndroidLog();
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
     @Override
     public void runOpMode() {
-        intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap, intake, log);
+        shooter = new Shooter(hardwareMap, log);
 
         PID pid = new PID(0.5, 0, 0);
         PID pidRotate = new PID(0.02, 0, 0);
@@ -34,50 +34,73 @@ public class ShooterMotorTest extends LinearOpMode {
         double x = 0;
         double h = 0;
 
-        double kp = 500.0;
-        double ki = 0.0;
-        double kd = 0.0;
-        double change = 10;
+        // These values work for shooter motor
+        double kps = 350.0;
+        double kis = 1.0;
+        double kds = 1.0;
+
+        // I don't get how these values are so different
+        double kpi = 1.0;
+        double kii = 2.0;
+        double kdi = 5.0;
+        double change = 1;
 
         double targetDistance = 0;
 
 
         // show init telemetry until start pressed
         while (!isStarted() && !isStopRequested()) {
-            telemetry.addData("Status", "Initialized");
             telemetry.addData("Hint", "Waiting for start - update sensors/vision here");
 
+            // Changing PID values on driver hub
+            if (gamepad2.rightBumperWasPressed()) {
+                change *= 0.1;
+            } else if (gamepad2.leftBumperWasPressed()) {
+                change *= 10;
+            }
 
-            if (gamepad2.dpadUpWasPressed() && gamepad2.a) kp += change;
-            else if (gamepad2.dpadDownWasPressed() && gamepad2.a) kp -= change;
+            if (gamepad2.a && gamepad2.dpadUpWasReleased()) {
+                kdi += change;
+            } else if (gamepad2.a && gamepad2.dpadDownWasPressed()) {
+                kdi -= change;
+            } else if (gamepad2.b && gamepad2.dpadUpWasReleased()) {
+                kii += change;
+            } else if (gamepad2.b && gamepad2.dpadDownWasPressed()) {
+                kii -= change;
+            } else if (gamepad2.y && gamepad2.dpadUpWasReleased()) {
+                kpi += change;
+            } else if (gamepad2.y && gamepad2.dpadDownWasPressed()) {
+                kpi -= change;
+            }
 
-            if (gamepad2.dpadUpWasPressed() && gamepad2.b) kd += change;
-            else if (gamepad2.dpadDownWasPressed() && gamepad2.b) kd -= change;
-
-            if (gamepad2.rightBumperWasPressed()) change *= 10;
-            else if (gamepad2.leftBumperWasPressed()) change *= 0.1;
-
-            telemetry.addData("PID Values", "kp: %.5f ki: %.5f kd: %.5f", kp, ki, kd);
+            telemetry.addData("PID Values", "kp: %.5f ki: %.5f kd: %.5f", kpi, kii, kdi);
             telemetry.addData("PID Change", change);
             telemetry.update();
-            shooter.setPIDValues(kp, ki, kd);
+            shooter.setPidShooterValues(kps, kis, kds);
+            shooter.setPidIntakeValues(kpi, kii, kdi);
         }
-
-
-
-        // these are for strafing
-        double kps = 0.13;
-        double kds = 0.29;
 
         // Start autonomous
         while (!isStopRequested()) {
             shooter.startShooterMotor(1000);
-            double velocity = shooter.getShooterVelocity();
-            dashboardTelemetry.addData("Velocity", velocity);
-            dashboardTelemetry.addData("kp", kp);
-            dashboardTelemetry.addData("kd", kd);
+            shooter.startIntakeMotor(1000);
+//            if (gamepad2.right_bumper) {
+//                shooter.startShooterMotor(-45);
+//                shooter.startIntakeMotor(45);
+//            }
+//            else if (gamepad2.right_trigger > 0.25) {
+//                shooter.startIntakeMotor(45);
+//            }
+//            else if (gamepad2.left_trigger > 0.25) {
+//                shooter.startShooterMotor(-45);
+//            }
+//            else {
+//                shooter.startShooterMotor(0);
+//                shooter.startIntakeMotor(0);
+//            }
+            dashboardTelemetry.addData("Shooter Motor", shooter.getShooterMotorVelocity());
+            dashboardTelemetry.addData("Intake Motor", shooter.getIntakeMotorVelocity());
             dashboardTelemetry.update();
-
         }
     }
 }

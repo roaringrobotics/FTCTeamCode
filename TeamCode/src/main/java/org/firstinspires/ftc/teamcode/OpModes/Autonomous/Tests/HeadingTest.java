@@ -45,7 +45,7 @@ public class HeadingTest extends LinearOpMode {
         driveTrain = new DriveTrain(hardwareMap);
         imu = new PinpointImpl(hardwareMap);
         intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap, intake, log);
+        shooter = new Shooter(hardwareMap, log);
 
         PowerRampController rampDrive = new PowerRampController(
                 .1,

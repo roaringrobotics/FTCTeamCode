@@ -32,7 +32,7 @@ public class DecodeSingleTeleop extends LinearOpMode {
         driveTrain = new DriveTrain(hardwareMap);
         imu = new PinpointImpl(hardwareMap);
         intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap, intake, log);
+        shooter = new Shooter(hardwareMap, log);
         //  intake = new Intake(hardwareMap);
         waitForStart();
         float deadZone = 0.5F;
@@ -61,19 +61,19 @@ public class DecodeSingleTeleop extends LinearOpMode {
 
             if (!gamepad1.a && !gamepad1.b && !gamepad1.y) {
 
-                if (gamepad1.right_trigger > deadZone)
-                    shooter.startIntake();
-                else if (gamepad1.left_trigger > deadZone)
-                    shooter.reverseIntake();
-                else
-                    shooter.stopIntake();
+                //if (gamepad1.right_trigger > deadZone)
+                    //shooter.startIntake();
+                //else if (gamepad1.left_trigger > deadZone)
+                    //shooter.reverseIntake();
+                //else
+                    //shooter.stopIntake();
 
-                if (gamepad1.dpad_left)
-                    shooter.reverseShootServos();
-                else if (gamepad1.dpad_right)
-                    shooter.startShootServos();
-                else
-                    shooter.stopShootServos();
+//                if (gamepad1.dpad_left)
+//                    shooter.reverseShootServos();
+//                else if (gamepad1.dpad_right)
+//                    shooter.startShootServos();
+//                else
+//                    shooter.stopShootServos();
 
 
             }
