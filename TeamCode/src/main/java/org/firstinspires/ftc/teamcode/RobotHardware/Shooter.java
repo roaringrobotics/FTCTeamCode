@@ -62,9 +62,8 @@ public class Shooter {
         //blueServo = hardwareMap.get(CRServo.class, "blueServo");
         //blackServo = hardwareMap.get(CRServo.class, "blackServo");
 
-        //Reverse bottom motor so both spin the same physical direction
+        // Reverse intake motor to match shooter motor
         intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         // Default to BRAKE when power is zero
         intakeMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         shooterMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -128,8 +127,14 @@ public class Shooter {
         shooterMotor.setMode(mode);
     }
 
-    public void setPIDValues(double kp, double ki, double kd) {
+    public void setPidValues(double kp, double ki, double kd) {
         intakeMotor.setVelocityPIDFCoefficients(kp, ki, kd, 12);
+        shooterMotor.setVelocityPIDFCoefficients(kp, ki, kd, 12);
+    }
+    public void setPidIntakeValues(double kp, double ki, double kd) {
+        intakeMotor.setVelocityPIDFCoefficients(kp, ki, kd, 12);
+    }
+    public void setPidShooterValues(double kp, double ki, double kd) {
         shooterMotor.setVelocityPIDFCoefficients(kp, ki, kd, 12);
     }
 

@@ -34,10 +34,16 @@ public class ShooterMotorTest extends LinearOpMode {
         double x = 0;
         double h = 0;
 
-        double kp = 100.0;
-        double ki = 0.0;
-        double kd = 0.0;
-        double change = 10;
+        // These values work for shooter motor
+        double kps = 350.0;
+        double kis = 1.0;
+        double kds = 1.0;
+
+        // I don't get how these values are so different
+        double kpi = 1.0;
+        double kii = 2.0;
+        double kdi = 5.0;
+        double change = 1;
 
         double targetDistance = 0;
 
@@ -54,29 +60,30 @@ public class ShooterMotorTest extends LinearOpMode {
             }
 
             if (gamepad2.a && gamepad2.dpadUpWasReleased()) {
-                kd += change;
+                kdi += change;
             } else if (gamepad2.a && gamepad2.dpadDownWasPressed()) {
-                kd -= change;
+                kdi -= change;
             } else if (gamepad2.b && gamepad2.dpadUpWasReleased()) {
-                ki += change;
+                kii += change;
             } else if (gamepad2.b && gamepad2.dpadDownWasPressed()) {
-                ki -= change;
+                kii -= change;
             } else if (gamepad2.y && gamepad2.dpadUpWasReleased()) {
-                kp += change;
+                kpi += change;
             } else if (gamepad2.y && gamepad2.dpadDownWasPressed()) {
-                kp -= change;
+                kpi -= change;
             }
 
-            telemetry.addData("PID Values", "kp: %.5f ki: %.5f kd: %.5f", kp, ki, kd);
+            telemetry.addData("PID Values", "kp: %.5f ki: %.5f kd: %.5f", kpi, kii, kdi);
             telemetry.addData("PID Change", change);
             telemetry.update();
-            shooter.setPIDValues(kp, ki, kd);
+            shooter.setPidShooterValues(kps, kis, kds);
+            shooter.setPidIntakeValues(kpi, kii, kdi);
         }
 
         // Start autonomous
         while (!isStopRequested()) {
-            shooter.startShooterMotor(-45);
-            shooter.startIntakeMotor(45);
+            shooter.startShooterMotor(1000);
+            shooter.startIntakeMotor(1000);
 //            if (gamepad2.right_bumper) {
 //                shooter.startShooterMotor(-45);
 //                shooter.startIntakeMotor(45);
