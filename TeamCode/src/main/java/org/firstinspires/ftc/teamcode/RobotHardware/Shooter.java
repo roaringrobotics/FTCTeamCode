@@ -62,8 +62,8 @@ public class Shooter {
         //blueServo = hardwareMap.get(CRServo.class, "blueServo");
         //blackServo = hardwareMap.get(CRServo.class, "blackServo");
 
-        // Reverse intake motor to match shooter motor
-        intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        // Reverse shooter motor to match intake motor
+        shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         // Default to BRAKE when power is zero
         intakeMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         shooterMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);

@@ -30,19 +30,17 @@ public class ShooterMotorTest extends LinearOpMode {
                 .1,
                 new SystemTimeSource());
 
-        double y = 0;
-        double x = 0;
-        double h = 0;
-
         // These values work for shooter motor
         double kps = 350.0;
-        double kis = 1.0;
-        double kds = 1.0;
+        double kis = 2.0;
+        double kds = 2.0;
 
-        // I don't get how these values are so different
         double kpi = 1.0;
         double kii = 2.0;
-        double kdi = 5.0;
+        double kdi = 2.0;
+
+        // this velocity value works for the nectar
+        double velocity = 1300;
         double change = 1;
 
         double targetDistance = 0;
@@ -58,23 +56,30 @@ public class ShooterMotorTest extends LinearOpMode {
             } else if (gamepad2.leftBumperWasPressed()) {
                 change *= 10;
             }
-
-            if (gamepad2.a && gamepad2.dpadUpWasReleased()) {
-                kdi += change;
-            } else if (gamepad2.a && gamepad2.dpadDownWasPressed()) {
-                kdi -= change;
-            } else if (gamepad2.b && gamepad2.dpadUpWasReleased()) {
-                kii += change;
-            } else if (gamepad2.b && gamepad2.dpadDownWasPressed()) {
-                kii -= change;
-            } else if (gamepad2.y && gamepad2.dpadUpWasReleased()) {
-                kpi += change;
-            } else if (gamepad2.y && gamepad2.dpadDownWasPressed()) {
-                kpi -= change;
+            if (gamepad2.dpadDownWasPressed()) {
+                velocity -= change;
+            }
+            if (gamepad2.dpadUpWasReleased()) {
+                velocity += change;
             }
 
-            telemetry.addData("PID Values", "kp: %.5f ki: %.5f kd: %.5f", kpi, kii, kdi);
-            telemetry.addData("PID Change", change);
+            if (gamepad2.a && gamepad2.dpadUpWasReleased()) {
+                kds += change;
+            } else if (gamepad2.a && gamepad2.dpadDownWasPressed()) {
+                kds -= change;
+            } else if (gamepad2.b && gamepad2.dpadUpWasReleased()) {
+                kis += change;
+            } else if (gamepad2.b && gamepad2.dpadDownWasPressed()) {
+                kis -= change;
+            } else if (gamepad2.y && gamepad2.dpadUpWasReleased()) {
+                kps += change;
+            } else if (gamepad2.y && gamepad2.dpadDownWasPressed()) {
+                kps -= change;
+            }
+
+            telemetry.addData("PID Values", "kp: %.5f ki: %.5f kd: %.5f", kps, kis, kds);
+            telemetry.addData("Velocity", velocity);
+            telemetry.addData("Velocity Change", change);
             telemetry.update();
             shooter.setPidShooterValues(kps, kis, kds);
             shooter.setPidIntakeValues(kpi, kii, kdi);
@@ -82,22 +87,9 @@ public class ShooterMotorTest extends LinearOpMode {
 
         // Start autonomous
         while (!isStopRequested()) {
-            shooter.startShooterMotor(750);
-            shooter.startIntakeMotor(750);
-//            if (gamepad2.right_bumper) {
-//                shooter.startShooterMotor(-45);
-//                shooter.startIntakeMotor(45);
-//            }
-//            else if (gamepad2.right_trigger > 0.25) {
-//                shooter.startIntakeMotor(45);
-//            }
-//            else if (gamepad2.left_trigger > 0.25) {
-//                shooter.startShooterMotor(-45);
-//            }
-//            else {
-//                shooter.startShooterMotor(0);
-//                shooter.startIntakeMotor(0);
-//            }
+            shooter.startShooterMotor(velocity);
+            shooter.startIntakeMotor(velocity);
+
             dashboardTelemetry.addData("Shooter Motor", shooter.getShooterMotorVelocity());
             dashboardTelemetry.addData("Intake Motor", shooter.getIntakeMotorVelocity());
             dashboardTelemetry.update();
