@@ -26,22 +26,12 @@ public class AutonomousSkeleton extends LinearOpMode {
 
     /*
     define hardware we need here
-        example:
-        private DriveTrain driveTrain;
 
-    android log
-        private final AndroidLog log = new AndroidLog();
-
+    Exp. for dashboard
     ftcDashboard log
         private FtcDashboard dashboard = FtcDashboard.getInstance();
      */
     private DriveTrain driveTrain;
-    private PinpointImpl imu;
-
-
-    // Hardware placeholders - change names to match your robot configuration
-    private DcMotor leftDrive = null;
-    private DcMotor rightDrive = null;
 
     // autonomous 30s timer
     private final ElapsedTime stateTimer = new ElapsedTime();
@@ -50,26 +40,16 @@ public class AutonomousSkeleton extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         /*
         initialize hardware
-            example:
-            driveTrain = new DriveTrain(hardwareMap);
         initialize all hardware or else you will get a null pointer error
          */
         driveTrain = new DriveTrain(hardwareMap);
-        imu = new PinpointImpl(hardwareMap);
 
         // isRed used to switch autonomous to different side
         boolean isRed = false;
         String team;
 
-        // placeholder values
-        double y = 0;
-        double x = 0;
-        double h = 0;
-        double targetDistance = 0;
-        double mirrorField = 1;
-
         // if using an imu always reset the imu before use
-        imu.reset();
+        // imu.reset();
 
         // show init telemetry until start pressed
         while (!isStarted() && !isStopRequested()) {
@@ -84,25 +64,19 @@ public class AutonomousSkeleton extends LinearOpMode {
             } else {
                 team = "Blue Side";
             }
+
+            // add any more telemetry here
             telemetry.addData("Side", team);
             telemetry.update();
             idle();
         }
 
-        if (isStopRequested()) {
-            return;
-        }
         stateTimer.reset();
-
+        telemetry.addData("Status", "Started");
+        telemetry.update();
         // Start autonomous
-        try {
-            // write code here for autonomous
 
 
 
-            // write code here for autonomous
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }
